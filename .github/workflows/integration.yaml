@@ -1,0 +1,44 @@
+name: Integration Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go: [1.18]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{matrix.go}}
+
+      - name: Create On Yesterday
+        shell: bash
+        run: |
+          NIGHTLY=$(date --date="yesterday" +%Y%m%d)
+          NIGHTLY=20220401
+          cat docker-compose.template|sed -e "s/{{IMAGE}}/synadia/nats-server:nightly-${NIGHTLY}/" > docker-compose.yaml
+          
+          docker compose up -d
+          sleep 5
+          cd suites
+          go run wait/wait.go
+          go run create/create.go
+          go run validate/validate.go
+
+      - name: Validate Today
+        shell: bash
+        run: |
+          NIGHTLY=$(date +%Y%m%d)
+          cat docker-compose.template|sed -e "s/{{IMAGE}}/synadia/nats-server:nightly-${NIGHTLY}/" > docker-compose.yaml
+          
+          docker compose up -d
+          sleep 5
+          cd suites
+          go run wait/wait.go
+          go run validate/validate.go
