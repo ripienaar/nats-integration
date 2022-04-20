@@ -28,13 +28,9 @@ jobs:
           cat docker-compose.template|sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" > docker-compose.yaml
           
           docker compose up -d
-          
-          sleep 5
-          
-          cd suites
-          go run wait/wait.go
-          go run create/create.go
-          go run validate/validate.go
+
+          go install github.com/onsi/ginkgo/v2/ginkgo@latest
+          ginkgo -v --keep-going -vet=off -r suites
 
       - name: Validate Today
         shell: bash
@@ -43,7 +39,6 @@ jobs:
           cat docker-compose.template|sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" > docker-compose.yaml
           
           docker compose up -d
-          sleep 5
-          cd suites
-          go run wait/wait.go
-          go run validate/validate.go
+
+          go install github.com/onsi/ginkgo/v2/ginkgo@latest
+          VALIDATE_ONLY=1 ginkgo -v --keep-going -vet=off -r suites
