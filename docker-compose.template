@@ -15,7 +15,7 @@ services:
     - nats-cluster1
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n1-c1:/data
     ports:
     - 10000:4222
@@ -34,7 +34,7 @@ services:
     - nats-cluster1
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n2-c1:/data
     ports:
     - 10001:4222
@@ -53,7 +53,7 @@ services:
     - nats-cluster1
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n3-c1:/data
     ports:
     - 10002:4222
@@ -72,7 +72,7 @@ services:
     - nats-cluster2
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n1-c2:/data
     ports:
     - 10003:4222
@@ -91,7 +91,7 @@ services:
     - nats-cluster2
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n2-c2:/data
     ports:
     - 10004:4222
@@ -110,7 +110,7 @@ services:
     - nats-cluster2
     - shared
     volumes:
-    - ./cluster.conf:/nats-server.conf
+    - ./cluster.conf:/nats/conf/nats-server.conf
     - ./data/n3-c2:/data
     ports:
     - 10005:4222

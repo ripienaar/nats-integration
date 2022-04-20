@@ -1,5 +1,9 @@
 name: Integration Tests
-on: [push, pull_request]
+on:
+  workflow_dispatch: {}
+
+  schedule:
+    - cron: "40 5 * * *"
 
 jobs:
   test:
@@ -21,11 +25,12 @@ jobs:
         shell: bash
         run: |
           NIGHTLY=$(date --date="yesterday" +%Y%m%d)
-          NIGHTLY=20220401
-          cat docker-compose.template|sed -e "s/{{IMAGE}}/synadia/nats-server:nightly-${NIGHTLY}/" > docker-compose.yaml
+          cat docker-compose.template|sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" > docker-compose.yaml
           
           docker compose up -d
+          
           sleep 5
+          
           cd suites
           go run wait/wait.go
           go run create/create.go
@@ -35,7 +40,7 @@ jobs:
         shell: bash
         run: |
           NIGHTLY=$(date +%Y%m%d)
-          cat docker-compose.template|sed -e "s/{{IMAGE}}/synadia/nats-server:nightly-${NIGHTLY}/" > docker-compose.yaml
+          cat docker-compose.template|sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" > docker-compose.yaml
           
           docker compose up -d
           sleep 5
