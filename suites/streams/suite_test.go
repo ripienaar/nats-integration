@@ -78,6 +78,27 @@ func streamMessages(s *jsm.Stream) func() int {
 	}
 }
 
+func streamClusterReady(stream *jsm.Stream, peers int) func() error {
+	return func() error {
+		nfo, err := stream.Information()
+		if err != nil {
+			return err
+		}
+
+		if nfo.Cluster == nil || len(nfo.Cluster.Replicas) != peers-1 {
+			return fmt.Errorf("waiting for replicas")
+		}
+
+		for _, peer := range nfo.Cluster.Replicas {
+			if !(peer.Current && peer.Lag == 0) {
+				return fmt.Errorf("%s not ready", peer.Name)
+			}
+		}
+
+		return nil
+	}
+}
+
 // waits for the meta cluster to be ready, for use with Eventually()
 func metaClusterReady(nc *nats.Conn) func() bool {
 	return func() bool {

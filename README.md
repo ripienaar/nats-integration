@@ -18,10 +18,11 @@ See `.github/workflows` for the various scenarios.
 
 # Suites?
 
-| Suite                          | Description                                   |
-|--------------------------------|-----------------------------------------------|
-| `streams/basic_mirror_test.go` | Creates a R3 streams in C2 and a mirror in C1 |
-| `streams/relocate_test.go`     | Creates a R3 in C2 then relocates to C1       |
+| Suite                            | Description                                     |
+|----------------------------------|-------------------------------------------------|
+| `streams/basic_mirror_test.go`   | Creates a R3 streams in C2 and a mirror in C1   |
+| `streams/relocate_test.go`       | Creates a R3 in C2 then relocates to C1         |
+| `streams/scale_replicas_test.go` | Creates some streams and scale them up and down |
 
 # Status?
 

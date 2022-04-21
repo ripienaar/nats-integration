@@ -30,15 +30,15 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 	)
 
 	BeforeEach(func() {
+		if os.Getenv("SKIP_RELOCATION") != "" {
+			Skip("Skipping relocation tests due to environment override")
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 
 		nc, mgr, err = connectUser(ctx)
 		Expect(err).ToNot(HaveOccurred())
-
-		if os.Getenv("SKIP_RELOCATION") != "" {
-			Skip("Skipping relocation tests due to environment override")
-		}
 
 		// wait for meta cluster
 		sysnc, err := connectSystem(ctx)
