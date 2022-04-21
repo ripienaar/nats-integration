@@ -1,4 +1,4 @@
-name: Upgrade Integration Tests
+name: Nightly Upgrade to Nightly Integration Tests
 on:
   workflow_dispatch: {}
 
@@ -33,7 +33,7 @@ jobs:
           sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" | \
           sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
           
-          docker compose up -d
+          docker compose up -d --quiet-pull
 
           ginkgo --keep-going -vet=off -r suites
 
@@ -45,36 +45,6 @@ jobs:
           sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" | \
           sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
           
-          docker compose up -d
-
-          VALIDATE_ONLY=1 ginkgo --keep-going -vet=off -r suites
-
-      - name: Destroy
-        shell: bash
-        run: |
-          docker compose down
-          sudo rm -rf data
-          rm -f docker-compose.yaml
-
-      - name: Create On Release
-        shell: bash
-        run: |
-          cat docker-compose.template | \
-          sed -e "s+{{IMAGE}}+nats:alpine+g" | \
-          sed -e "s+{{CONFIG}}+/etc/nats/nats-server.conf+g" > docker-compose.yaml
-          
-          docker compose up -d
-
-          ginkgo --keep-going -vet=off -r suites
-
-      - name: Validate Today Nightly
-        shell: bash
-        run: |
-          NIGHTLY=$(date +%Y%m%d)
-          cat docker-compose.template | \
-          sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" | \
-          sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
-          
-          docker compose up -d
-
+          docker compose up -d --quiet-pull
+ 
           VALIDATE_ONLY=1 ginkgo --keep-going -vet=off -r suites

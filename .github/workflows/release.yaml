@@ -1,0 +1,49 @@
+name: Release Upgrade to Nightly Integration Tests
+on:
+  workflow_dispatch: {}
+
+  schedule:
+    - cron: "40 5 * * *"
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go: [1.18]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{matrix.go}}
+
+      - name: Install Dependencies
+        shell: bash
+        run: go install github.com/onsi/ginkgo/v2/ginkgo@latest
+
+      - name: Create On Release
+        shell: bash
+        run: |
+          cat docker-compose.template | \
+          sed -e "s+{{IMAGE}}+nats:alpine+g" | \
+          sed -e "s+{{CONFIG}}+/etc/nats/nats-server.conf+g" > docker-compose.yaml
+          
+          docker compose up -d --quiet-pull
+
+          ginkgo --keep-going -vet=off -r suites
+
+      - name: Validate Today Nightly
+        shell: bash
+        run: |
+          NIGHTLY=$(date +%Y%m%d)
+          cat docker-compose.template | \
+          sed -e "s+{{IMAGE}}+synadia/nats-server:nightly-${NIGHTLY}+g" | \
+          sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
+          
+          docker compose up -d --quiet-pull
+
+          VALIDATE_ONLY=1 ginkgo --keep-going -vet=off -r suites
