@@ -81,6 +81,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				msgs := int(nfo.State.Msgs)
 				Expect(msgs).To(BeNumerically(">=", 100))
 
+				Expect(nfo.Config.Replicas).To(Equal(3))
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
 				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
@@ -123,6 +124,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				msgs := int(nfo.State.Msgs)
 				Expect(msgs).To(BeNumerically(">=", 100))
 
+				Expect(nfo.Config.Replicas).To(Equal(3))
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
 				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 

@@ -112,6 +112,7 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				msgs := int(nfo.State.Msgs)
 
 				Expect(msgs).To(BeNumerically(">=", 200))
+				Expect(nfo.Config.Replicas).To(Equal(3))
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
 				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
