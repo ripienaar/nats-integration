@@ -144,7 +144,7 @@ func publishToStream(nc *nats.Conn, subj string, start int, count int) error {
 func streamMessagesAndSequences(stream *jsm.Stream, count int) error {
 	nfo, err := stream.Information()
 	if err != nil {
-		return err
+		return fmt.Errorf("stream info failed: %v", err)
 	}
 
 	if nfo.State.Msgs != uint64(count) {

@@ -110,7 +110,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 		})
 
 		Describe("Validate", func() {
-			It("Should exist and have messages", func() {
+			It("Should exist and have messages", FlakeAttempts(5), func() {
 				stream, err := mgr.LoadStream("BASIC_MIRROR")
 				Expect(err).ToNot(HaveOccurred())
 
@@ -120,7 +120,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
 
-				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
+				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed(), "After loading the BASIC_MIRROR stream, checking messages failed")
 
 				Expect(publishToStream(nc, "js.in.BASIC", msgs+1, 100)).To(Succeed())
 				Eventually(streamMessages(stream), "10s").Should(Equal(msgs + 100))
