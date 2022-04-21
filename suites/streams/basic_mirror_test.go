@@ -75,6 +75,8 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				stream, err := mgr.LoadStream("BASIC")
 				Expect(err).ToNot(HaveOccurred())
 
+				Eventually(streamLeader(stream), "10s", "1s").Should(BeTrue())
+
 				nfo, _ := stream.LatestInformation()
 				msgs := int(nfo.State.Msgs)
 				Expect(msgs).To(BeNumerically(">=", 100))
@@ -114,6 +116,8 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 			It("Should exist and have messages", FlakeAttempts(5), func() {
 				stream, err := mgr.LoadStream("BASIC_MIRROR")
 				Expect(err).ToNot(HaveOccurred())
+
+				Eventually(streamLeader(stream), "10s", "1s").Should(BeTrue())
 
 				nfo, _ := stream.LatestInformation()
 				msgs := int(nfo.State.Msgs)

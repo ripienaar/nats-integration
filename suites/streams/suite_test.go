@@ -58,6 +58,14 @@ func ctxSleep(ctx context.Context, d time.Duration) error {
 	}
 }
 
+// determines if stream has a leader, for use with Eventually()
+func streamLeader(s *jsm.Stream) func() bool {
+	return func() bool {
+		nfo, _ := s.Information()
+		return nfo != nil && nfo.Cluster.Leader != ""
+	}
+}
+
 // gets stream messages, for use with Eventually()
 func streamMessages(s *jsm.Stream) func() int {
 	return func() int {

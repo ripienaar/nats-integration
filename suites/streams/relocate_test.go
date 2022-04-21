@@ -64,6 +64,7 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				nfo, err := stream.Information()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
+				Expect(nfo.Cluster.Leader).ToNot(BeEmpty())
 				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
 				Expect(publishToStream(nc, "js.in.RELOCATE", 1, 100)).To(Succeed())
@@ -82,13 +83,9 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				Eventually(func() bool {
-					nfo, err := stream.Information()
-					if err != nil {
-						return false
-					}
-
-					return nfo.Cluster.Name == "c1"
-				}, "10s", "1s").Should(BeTrue())
+					nfo, _ := stream.Information()
+					return nfo != nil && nfo.Cluster.Name == "c1"
+				}, "10s", "1s").Should(BeTrue(), "Waiting for stream to relocate to c1")
 
 				// Wait for data move
 				Eventually(func() error {
@@ -104,6 +101,8 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 			It("Should exist and have messages", func() {
 				stream, err := mgr.LoadStream("RELOCATE")
 				Expect(err).ToNot(HaveOccurred())
+
+				Eventually(streamLeader(stream), "10s", "1s").Should(BeTrue())
 
 				nfo, _ := stream.LatestInformation()
 				msgs := int(nfo.State.Msgs)
