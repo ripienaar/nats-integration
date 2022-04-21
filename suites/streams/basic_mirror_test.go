@@ -2,7 +2,6 @@ package streams
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -13,6 +12,19 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// Tests a stream and it's mirror:
+//
+// Create:
+// - Sets up BASIC stream in c2 cluster
+// - Put 100 messages into it
+// - Create a mirror BASIC_MIRROR in c1 cluster
+// - Waits for sync to complete
+//
+// Verify:
+// - Checks it's in the right cluster
+// - Checks 100 messages
+// - Adds 100 messages to BASIC and wait on MIRROR for them
+// - Verifies
 var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 	var (
 		ctx    context.Context
@@ -53,12 +65,8 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 					jsm.FileStorage())
 				Expect(err).ToNot(HaveOccurred())
 
-				for i := 0; i < 100; i++ {
-					_, err := nc.Request(stream.Subjects()[0], []byte(fmt.Sprintf("Message %d", i)), time.Second)
-					Expect(err).ToNot(HaveOccurred())
-				}
-
-				Eventually(streamMessages(stream), "10s").Should(Equal(100))
+				Expect(publishToStream(nc, "js.in.BASIC", 1, 100)).To(Succeed())
+				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
 			})
 		})
 
@@ -67,18 +75,17 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				stream, err := mgr.LoadStream("BASIC")
 				Expect(err).ToNot(HaveOccurred())
 
-				nfo, err := stream.LatestInformation()
-				Expect(err).ToNot(HaveOccurred())
-
-				Expect(nfo.State.Msgs).To(Equal(uint64(100)))
+				nfo, _ := stream.LatestInformation()
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
+
+				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
 			})
 		})
 	})
 
 	Describe("Mirror in other cluster", func() {
 		Describe("Create", func() {
-			It("Should create and publish message into c2", func() {
+			It("Should create and publish message into c1", func() {
 				if os.Getenv("VALIDATE_ONLY") != "" {
 					Skip("Validating only")
 				}
@@ -103,8 +110,13 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				stream, err := mgr.LoadStream("BASIC_MIRROR")
 				Expect(err).ToNot(HaveOccurred())
 
+				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
+
+				Expect(publishToStream(nc, "js.in.BASIC", 101, 200)).To(Succeed())
+				Eventually(streamMessages(stream), "10s").Should(Equal(200))
+				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed())
+
 				nfo, _ := stream.LatestInformation()
-				Expect(nfo.State.Msgs).To(Equal(uint64(100)))
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
 			})
 		})

@@ -3,6 +3,7 @@ package streams
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -116,4 +117,41 @@ func metaClusterReady(nc *nats.Conn) func() bool {
 
 		return true
 	}
+}
+
+func publishToStream(nc *nats.Conn, subj string, start int, count int) error {
+	for i := start; i <= count; i++ {
+		_, err := nc.Request(subj, []byte(fmt.Sprintf("%d", i)), time.Second)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func streamMessagesAndSequences(stream *jsm.Stream, count int) error {
+	nfo, err := stream.Information()
+	if err != nil {
+		return err
+	}
+
+	if nfo.State.Msgs != uint64(count) {
+		return fmt.Errorf("found %d messages", nfo.State.Msgs)
+	}
+
+	if nfo.State.FirstSeq != 1 && nfo.State.LastSeq != uint64(count)-1 {
+		return fmt.Errorf("sequences wrong first:%d last:%d", nfo.State.FirstSeq, nfo.State.LastSeq)
+	}
+
+	for i := 1; i <= count; i++ {
+		msg, err := stream.ReadMessage(uint64(i))
+		if err != nil {
+			return err
+		}
+		if string(msg.Data) != fmt.Sprintf("%d", i) {
+			return fmt.Errorf("message %d had body %q", msg.Sequence, msg.Data)
+		}
+	}
+	return nil
 }
