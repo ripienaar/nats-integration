@@ -52,7 +52,7 @@ jobs:
       - name: Destroy
         shell: bash
         run: |
-          docker compose destroy
+          docker compose down
           rm -rf data
           rm -f docker-compose.yaml
 
