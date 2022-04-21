@@ -24,15 +24,13 @@ import (
 // - adds 100 messages and checks
 var _ = Describe("Stream Relocation", Ordered, func() {
 	var (
-		ctx    context.Context
-		cancel context.CancelFunc
-		nc     *nats.Conn
-		mgr    *jsm.Manager
-		err    error
+		nc  *nats.Conn
+		mgr *jsm.Manager
+		err error
 	)
 
 	BeforeEach(func() {
-		ctx, cancel = context.WithTimeout(context.Background(), time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 
 		nc, mgr, err = connectUser(ctx)
@@ -47,8 +45,6 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred())
 		Eventually(metaClusterReady(sysnc), "20s", "1s").Should(BeTrue())
 	})
-
-	AfterEach(func() { cancel() })
 
 	Describe("Create and Relocate", Ordered, func() {
 		Describe("Create", func() {

@@ -22,20 +22,19 @@ import (
 //
 // Verify:
 // - Checks it's in the right cluster
+// - Checks its R3 and have 2 peers
 // - Checks 100 messages
 // - Adds 100 messages to BASIC and wait on MIRROR for them
 // - Verifies
 var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 	var (
-		ctx    context.Context
-		cancel context.CancelFunc
-		nc     *nats.Conn
-		mgr    *jsm.Manager
-		err    error
+		nc  *nats.Conn
+		mgr *jsm.Manager
+		err error
 	)
 
 	BeforeEach(func() {
-		ctx, cancel = context.WithTimeout(context.Background(), time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 
 		nc, mgr, err = connectUser(ctx)
@@ -46,8 +45,6 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred())
 		Eventually(metaClusterReady(sysnc), "20s", "1s").Should(BeTrue())
 	})
-
-	AfterEach(func() { cancel() })
 
 	Describe("Basic Stream With Placement", Ordered, func() {
 		Describe("Create", func() {
@@ -132,7 +129,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 
 				Expect(publishToStream(nc, "js.in.BASIC", msgs+1, 100)).To(Succeed())
 				Eventually(streamMessages(stream), "10s").Should(Equal(msgs + 100))
-				Expect(streamMessagesAndSequences(stream, msgs+100)).Should(Succeed())
+				Expect(streamMessagesAndSequences(stream, msgs+100)).To(Succeed())
 			})
 		})
 	})
