@@ -64,6 +64,7 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				nfo, err := stream.Information()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
+				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
 				Expect(publishToStream(nc, "js.in.RELOCATE", 1, 100)).To(Succeed())
 				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
@@ -107,8 +108,9 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				nfo, _ := stream.LatestInformation()
 				msgs := int(nfo.State.Msgs)
 
-				Expect(nfo.Cluster.Name).To(Equal("c1"))
 				Expect(msgs).To(BeNumerically(">=", 200))
+				Expect(nfo.Cluster.Name).To(Equal("c1"))
+				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
 				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
 

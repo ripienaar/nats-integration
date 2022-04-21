@@ -80,6 +80,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				Expect(msgs).To(BeNumerically(">=", 100))
 
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
+				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
 				// checks message order and bodies etc
 				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
@@ -119,6 +120,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				Expect(msgs).To(BeNumerically(">=", 100))
 
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
+				Expect(nfo.Cluster.Replicas).To(HaveLen(2))
 
 				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed(), "After loading the BASIC_MIRROR stream, checking messages failed")
 
