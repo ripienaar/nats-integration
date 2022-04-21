@@ -48,11 +48,11 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 
 	Describe("Create and Relocate", Ordered, func() {
 		Describe("Create", Ordered, func() {
-			if os.Getenv("VALIDATE_ONLY") != "" {
-				Skip("Validating only")
-			}
-
 			It("Should create and publish message into c2", func() {
+				if os.Getenv("VALIDATE_ONLY") != "" {
+					Skip("Validating only")
+				}
+
 				Expect(mgr.IsKnownStream("RELOCATE")).To(BeFalse())
 				stream, err := mgr.NewStream("RELOCATE",
 					jsm.Subjects("js.in.RELOCATE"),
@@ -70,6 +70,10 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 			})
 
 			It("Should relocate to the other cluster", func() {
+				if os.Getenv("VALIDATE_ONLY") != "" {
+					Skip("Validating only")
+				}
+
 				stream, err := mgr.LoadStream("RELOCATE")
 				Expect(err).ToNot(HaveOccurred())
 
