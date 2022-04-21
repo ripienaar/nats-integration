@@ -2,7 +2,9 @@ package streams
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/nats-io/jsm.go"
@@ -37,6 +39,10 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 
 		nc, mgr, err = connectUser(ctx)
 		Expect(err).ToNot(HaveOccurred())
+
+		if strings.HasPrefix(nc.ConnectedServerVersion(), "2.7") {
+			Skip(fmt.Sprintf("Test cannot be run on server %s", nc.ConnectedServerVersion()))
+		}
 
 		// wait for meta cluster
 		sysnc, err := connectSystem(ctx)
