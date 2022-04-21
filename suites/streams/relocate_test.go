@@ -92,7 +92,7 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 				// Wait for data move
 				Eventually(func() error {
 					return streamMessagesAndSequences(stream, 100)
-				}, "5s", "1s").Should(Succeed())
+				}, "10s", "1s").Should(Succeed(), "Waiting for stream to come online with 100 messages in new cluster")
 
 				Expect(publishToStream(nc, stream.Subjects()[0], 101, 100)).To(Succeed())
 				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed(), "Stream size after publishing to relocated stream")
