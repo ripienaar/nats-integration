@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           docker compose down
-          rm -rf data
+          sudo rm -rf data
           rm -f docker-compose.yaml
 
       - name: Create On Release
