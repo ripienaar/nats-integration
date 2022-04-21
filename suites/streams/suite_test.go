@@ -121,9 +121,10 @@ func metaClusterReady(nc *nats.Conn) func() bool {
 
 func publishToStream(nc *nats.Conn, subj string, start int, count int) error {
 	var err error
-	for i := start; i <= count; i++ {
+
+	for i := 0; i < count; i++ {
 		for try := 0; try < 5; try++ {
-			_, err = nc.Request(subj, []byte(fmt.Sprintf("%d", i)), time.Second)
+			_, err = nc.Request(subj, []byte(fmt.Sprintf("%d", start+i)), time.Second)
 			if err == nil {
 				break
 			}

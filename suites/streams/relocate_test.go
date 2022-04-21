@@ -47,7 +47,7 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 	AfterEach(func() { cancel() })
 
 	Describe("Create and Relocate", Ordered, func() {
-		Describe("Create", Ordered, func() {
+		Describe("Create", func() {
 			It("Should create and publish message into c2", func() {
 				if os.Getenv("VALIDATE_ONLY") != "" {
 					Skip("Validating only")
@@ -89,22 +89,31 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 					return nfo.Cluster.Name == "c1"
 				}, "10s", "1s").Should(BeTrue())
 
-				Expect(publishToStream(nc, "js.in.RELOCATE", 101, 200)).To(Succeed())
-				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed())
+				// Wait for data move
+				Eventually(func() error {
+					return streamMessagesAndSequences(stream, 100)
+				}, "5s", "1s").Should(Succeed())
+
+				Expect(publishToStream(nc, stream.Subjects()[0], 101, 100)).To(Succeed())
+				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed(), "Stream size after publishing to relocated stream")
 			})
 		})
 
-		Describe("Validate", func() {
+		Describe("Validate", Ordered, func() {
 			It("Should exist and have messages", func() {
 				stream, err := mgr.LoadStream("RELOCATE")
 				Expect(err).ToNot(HaveOccurred())
 
 				nfo, _ := stream.LatestInformation()
-				Expect(nfo.Cluster.Name).To(Equal("c1"))
-				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed())
+				msgs := int(nfo.State.Msgs)
 
-				Expect(publishToStream(nc, "js.in.RELOCATE", 201, 300)).To(Succeed())
-				Expect(streamMessagesAndSequences(stream, 300)).Should(Succeed())
+				Expect(nfo.Cluster.Name).To(Equal("c1"))
+				Expect(msgs).To(BeNumerically(">=", 200))
+
+				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
+
+				Expect(publishToStream(nc, "js.in.RELOCATE", msgs+1, 100)).To(Succeed())
+				Expect(streamMessagesAndSequences(stream, msgs+100)).Should(Succeed())
 			})
 		})
 	})

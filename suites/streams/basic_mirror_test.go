@@ -49,7 +49,7 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 
 	AfterEach(func() { cancel() })
 
-	Describe("Basic Stream With Placement", func() {
+	Describe("Basic Stream With Placement", Ordered, func() {
 		Describe("Create", func() {
 			It("Should create and publish message into c2", func() {
 				if os.Getenv("VALIDATE_ONLY") != "" {
@@ -76,14 +76,18 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				nfo, _ := stream.LatestInformation()
+				msgs := int(nfo.State.Msgs)
+				Expect(msgs).To(BeNumerically(">=", 100))
+
 				Expect(nfo.Cluster.Name).To(Equal("c2"))
 
-				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
+				// checks message order and bodies etc
+				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
 			})
 		})
 	})
 
-	Describe("Mirror in other cluster", func() {
+	Describe("Mirror in other cluster", Ordered, func() {
 		Describe("Create", func() {
 			It("Should create and publish message into c1", func() {
 				if os.Getenv("VALIDATE_ONLY") != "" {
@@ -110,14 +114,17 @@ var _ = Describe("Basic Stream with Mirrors", Ordered, func() {
 				stream, err := mgr.LoadStream("BASIC_MIRROR")
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
-
-				Expect(publishToStream(nc, "js.in.BASIC", 101, 200)).To(Succeed())
-				Eventually(streamMessages(stream), "10s").Should(Equal(200))
-				Expect(streamMessagesAndSequences(stream, 200)).Should(Succeed())
-
 				nfo, _ := stream.LatestInformation()
+				msgs := int(nfo.State.Msgs)
+				Expect(msgs).To(BeNumerically(">=", 100))
+
 				Expect(nfo.Cluster.Name).To(Equal("c1"))
+
+				Expect(streamMessagesAndSequences(stream, msgs)).Should(Succeed())
+
+				Expect(publishToStream(nc, "js.in.BASIC", msgs+1, 100)).To(Succeed())
+				Eventually(streamMessages(stream), "10s").Should(Equal(msgs + 100))
+				Expect(streamMessagesAndSequences(stream, msgs+100)).Should(Succeed())
 			})
 		})
 	})
