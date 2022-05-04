@@ -51,17 +51,17 @@ var _ = Describe("Basic Push Consumer", Ordered, func() {
 					Skip("Validating only")
 				}
 
-				Expect(mgr.IsKnownStream("BASIC")).To(BeFalse())
+				Expect(mgr.IsKnownStream("BASIC_PUSH_CONSUMER")).To(BeFalse())
 
-				stream, err := mgr.NewStream("BASIC",
-					jsm.Subjects("js.in.BASIC"),
+				stream, err := mgr.NewStream("BASIC_PUSH_CONSUMER",
+					jsm.Subjects("js.in.BASIC_PUSH_CONSUMER"),
 					jsm.Replicas(1),
 					jsm.MaxBytes(1000000000),
 					jsm.PlacementCluster("c2"),
 					jsm.FileStorage())
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(publishToStream(nc, "js.in.BASIC", 1, 100)).To(Succeed())
+				Expect(publishToStream(nc, "js.in.BASIC_PUSH_CONSUMER", 1, 100)).To(Succeed())
 				Expect(streamMessagesAndSequences(stream, 100)).Should(Succeed())
 
 				_, err = stream.NewConsumer(jsm.DurableName("DURABLE"))
@@ -71,7 +71,7 @@ var _ = Describe("Basic Push Consumer", Ordered, func() {
 
 		Describe("Validate", func() {
 			It("Should exist and have messages", func() {
-				stream, err := mgr.LoadStream("BASIC")
+				stream, err := mgr.LoadStream("BASIC_PUSH_CONSUMER")
 				Expect(err).ToNot(HaveOccurred())
 
 				nfo, _ := stream.LatestInformation()
@@ -88,7 +88,7 @@ var _ = Describe("Basic Push Consumer", Ordered, func() {
 				js, err := nc.JetStream()
 				Expect(err).ToNot(HaveOccurred())
 
-				sub, err := js.SubscribeSync("js.in.BASIC")
+				sub, err := js.SubscribeSync("js.in.BASIC_PUSH_CONSUMER")
 				Expect(err).ToNot(HaveOccurred())
 
 				for i := 1; i < msgs+1; i++ {
