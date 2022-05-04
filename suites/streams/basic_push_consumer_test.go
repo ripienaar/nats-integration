@@ -51,6 +51,9 @@ var _ = Describe("Basic Push Consumer", Ordered, func() {
 					Skip("Validating only")
 				}
 
+				streams, err := mgr.StreamNames(nil)
+				Expect(err).ToNot(HaveOccurred())
+				fmt.Printf("%#v\n", streams)
 				Expect(mgr.IsKnownStream("BASIC_PUSH_CONSUMER")).To(BeFalse())
 
 				stream, err := mgr.NewStream("BASIC_PUSH_CONSUMER",
