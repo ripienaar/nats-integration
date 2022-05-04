@@ -93,7 +93,9 @@ var _ = Describe("Basic Push Consumer", Ordered, func() {
 
 				for i := 1; i < msgs+1; i++ {
 					msg, err := sub.NextMsg(time.Second)
-					Expect(err).ToNot(HaveOccurred())
+					if err != nil {
+						Fail(fmt.Sprintf("Failed on %d: %v", i, err))
+					}
 					Expect(msg.Data).To(Equal([]byte(fmt.Sprintf("%d", i))))
 				}
 			})
