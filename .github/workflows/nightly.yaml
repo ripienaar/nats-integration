@@ -1,4 +1,4 @@
-name: Nightly Upgrade to Nightly Integration Tests
+name: Nightly Upgrade to Nightly
 on:
   workflow_dispatch: {}
 

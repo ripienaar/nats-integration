@@ -1,4 +1,4 @@
-name: Release Upgrade to Nightly Integration Tests
+name: Release Upgrade to Nightly
 on:
   workflow_dispatch: {}
 
