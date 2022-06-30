@@ -35,9 +35,7 @@ jobs:
           
           docker compose up -d --quiet-pull
 
-          ginkgo --keep-going -vet=off -r suites
-          
-          docker compose logs
+          ginkgo --keep-going -vet=off -r suites  --after-run-hook "docker compose logs"
 
       - name: Validate Today Nightly
         shell: bash
@@ -49,6 +47,4 @@ jobs:
           
           docker compose up -d --quiet-pull
  
-          VALIDATE_ONLY=1 ginkgo --keep-going -vet=off -r suites
-
-          docker compose logs
+          VALIDATE_ONLY=1 ginkgo --keep-going -vet=off -r suites --after-run-hook "docker compose logs"
