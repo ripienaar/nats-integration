@@ -104,7 +104,13 @@ var _ = Describe("Stream Relocation", Ordered, func() {
 
 				Eventually(streamLeader(stream), "10s", "1s").Should(BeTrue())
 
-				nfo, _ := stream.LatestInformation()
+				Eventually(func() bool {
+					nfo, _ := stream.Information()
+					return nfo != nil && len(nfo.Cluster.Replicas) == 2
+				}, "10s", "1s").Should(BeTrue(), "Waiting for stream to relocate to c1")
+
+				nfo, err := stream.Information()
+				Expect(err).ToNot(HaveOccurred())
 				msgs := int(nfo.State.Msgs)
 
 				Expect(msgs).To(BeNumerically(">=", 200))
