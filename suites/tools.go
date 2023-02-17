@@ -9,6 +9,7 @@ package main
 import (
 	_ "github.com/onsi/ginkgo/v2/ginkgo/generators"
 	_ "github.com/onsi/ginkgo/v2/ginkgo/internal"
+        _ "github.com/go-task/slim-sprig"
 )
 
 // this file is here to make things like go generate and ginkgo install
