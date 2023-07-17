@@ -141,6 +141,7 @@ func metaClusterReady(nc *nats.Conn) func() bool {
 			}
 		}
 		if !current {
+			log.Printf("Meta cluster state not current: %#v")
 			return false
 		}
 

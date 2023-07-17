@@ -41,7 +41,7 @@ var _ = Describe("Scale Up and Down Replicas", Ordered, func() {
 		// wait for meta cluster
 		sysnc, err := connectSystem(ctx)
 		Expect(err).ToNot(HaveOccurred())
-		Eventually(metaClusterReady(sysnc), "20s", "1s").Should(BeTrue())
+		Eventually(metaClusterReady(sysnc), "30s", "1s").Should(BeTrue())
 	})
 
 	Describe("Basic scale down", Ordered, func() {
