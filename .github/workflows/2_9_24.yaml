@@ -53,7 +53,7 @@ jobs:
         run: |
           cat docker-compose.template | \
           sed -e "s+{{IMAGE}}+nats:2.9.24-alpine+g" | \
-          sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
+          sed -e "s+{{CONFIG}}+/etc/nats/nats-server.conf+g" > docker-compose.yaml
           
           docker compose up -d --quiet-pull
 
