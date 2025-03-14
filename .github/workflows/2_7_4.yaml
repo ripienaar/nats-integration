@@ -47,3 +47,14 @@ jobs:
           docker compose up -d --quiet-pull
 
           VALIDATE_ONLY=1 SKIP_RELOCATION=1 SKIP_REPLICAS=1 ginkgo --after-run-hook="docker compose logs" --keep-going -vet=off -r suites
+
+      - name: Validate on 2.9.24 Release
+        shell: bash
+        run: |
+          cat docker-compose.template | \
+          sed -e "s+{{IMAGE}}+nats:2.9.24-alpine+g" | \
+          sed -e "s+{{CONFIG}}+/nats/conf/nats-server.conf+g" > docker-compose.yaml
+          
+          docker compose up -d --quiet-pull
+
+          VALIDATE_ONLY=1 SKIP_RELOCATION=1 SKIP_REPLICAS=1 ginkgo --after-run-hook="docker compose logs" --keep-going -vet=off -r suites
